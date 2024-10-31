@@ -16,12 +16,7 @@ export default defineNuxtConfig({
     appleClientSecret: process.env.APPLE_CLIENT_SECRET,
   },
   auth: {
-    baseURL: process.env.VERCEL_URL ? `https://${VERCEL_URL}/api/auth` : 'http://localhost:3000/api/auth',
-    provider: {
-      type: 'authjs',
-      defaultProvider: 'google',
-      addDefaultCallbackUrl: true
-    }
+    baseURL: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/api/auth` : 'http://localhost:3000/api/auth',
   },
   i18n: {
     strategy: 'prefix_except_default',
