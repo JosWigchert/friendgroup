@@ -1,0 +1,23 @@
+model FriendGroup {
+  id          String              @id @default(cuid())
+  name        String
+  description String
+  image       String
+  createdAt   DateTime            @default(now())
+  members     FriendGroupMember[]
+}
+
+enum GroupRole {
+  FOUNDER
+  ADMIN
+  USER
+}
+
+model FriendGroupMember {
+  id            String      @id @default(cuid())
+  friendGroupId String
+  FriendGroup   FriendGroup @relation(fields: [friendGroupId], references: [id])
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  role          GroupRole   @default(USER)
+}
