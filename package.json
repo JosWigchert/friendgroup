@@ -19,6 +19,7 @@
     "@prisma/client": "^5.18.0",
     "@trpc/client": "^10.45.2",
     "@trpc/server": "^10.45.2",
+    "@vercel/speed-insights": "^1.0.14",
     "@vicons/ionicons5": "^0.12.0",
     "nuxt": "3.12.4",
     "superjson": "^2.2.1",
