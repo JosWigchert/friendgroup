@@ -1,11 +1,7 @@
-<script setup lang="ts">
-import { darkTheme, lightTheme } from 'naive-ui'
-</script>
-
 <template>
-  <n-config-provider>
+  <NConfigProvider>
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-  </n-config-provider>
+  </NConfigProvider>
 </template>

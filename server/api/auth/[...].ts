@@ -11,11 +11,11 @@ export default NuxtAuthHandler({
   adapter: PrismaAdapter(prisma),
   secret: useRuntimeConfig().authSecret,
   providers: [
-    // // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
-    // AppleProvider.default({
-    //   clientId: useRuntimeConfig().appleClientId,
-    //   clientSecret: useRuntimeConfig().appleClientSecret,
-    // }),
+    // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
+    AppleProvider.default({
+      clientId: useRuntimeConfig().appleClientId,
+      clientSecret: useRuntimeConfig().appleClientSecret,
+    }),
     // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
     GoogleProvider.default({
       clientId: useRuntimeConfig().googleClientId,
