@@ -24,7 +24,7 @@ function toggleMobileMenu() {
       </NButton>
     </nav>
 
-    <NButton v-if="status === 'unauthenticated'" type="primary" ghost class="ml-auto md:ml-4" @click="signIn">
+    <NButton v-if="status === 'unauthenticated'" type="primary" ghost class="ml-auto md:ml-4" @click="navigateTo('/auth/signin')">
       Login
     </NButton>
     <NAvatar
