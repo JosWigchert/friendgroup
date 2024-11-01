@@ -2,6 +2,11 @@
 import { LogoApple, LogoGithub, LogoGoogle } from '@vicons/ionicons5'
 
 const { signIn } = useAuth()
+const { query } = useRoute()
+
+function oauthSignIn(provider) {
+  signIn(provider, { callbackUrl: query.redirect })
+}
 </script>
 
 <template>
@@ -13,13 +18,13 @@ const { signIn } = useAuth()
           Sign in with Apple
         </div>
       </NButton>
-      <NButton type="primary" ghost class="w-full mb-4 flex login" @click="signIn('google')">
+      <NButton type="primary" ghost class="w-full mb-4 flex login" @click="oauthSignIn('google')">
         <NIcon size="24" class="mr-4 text-black left-0 justify-left" :component="LogoGoogle" />
         <div>
           Sign in with Google
         </div>
       </NButton>
-      <NButton type="primary" ghost class="w-full mb-4 flex login" @click="signIn('github')">
+      <NButton type="primary" ghost class="w-full mb-4 flex login" @click="oauthSignIn('github')">
         <NIcon size="24" class="mr-4 text-black left-0 justify-left" :component="LogoGithub" />
         <div>
           Sign in with Github

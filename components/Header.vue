@@ -1,19 +1,61 @@
 <script setup>
-import { CloseOutline, MenuOutline } from '@vicons/ionicons5'
+import { ChevronDownOutline, CloseOutline, MenuOutline } from '@vicons/ionicons5'
 
 const isMobileMenuOpen = ref(false)
-const { status, data, signIn, signOut } = useAuth()
+const { status, data, signOut } = useAuth()
 
 function toggleMobileMenu() {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
+
+const friendGroups = ref([
+  { id: '1', name: 'Weekend Warriors' },
+  { id: '2', name: 'Book Club' },
+  { id: '3', name: 'Travel Buddies' },
+])
+
+const selectedGroup = ref(friendGroups.value[0]?.name)
+
+// Define dropdown options for friend groups
+const groupOptions = ref(friendGroups.value.map(group => ({
+  key: group.id,
+  label: group.name,
+})))
+
+// Redirect to the group page on selection
+function handleGroupSelect(key) {
+  const selected = friendGroups.value.find(group => group.id === key)
+  if (selected) {
+    selectedGroup.value = selected.name
+    router.push(`/friendgroups/${selected.id}`)
+  }
+}
+
+// Watch for changes in friendGroups to update dropdown options
+watchEffect(() => {
+  groupOptions.value = friendGroups.value.map(group => ({
+    key: group.id,
+    label: group.name,
+  }))
+})
 </script>
 
 <template>
   <header class="flex items-center justify-between p-4 bg-white shadow-md md:flex-row">
-    <NuxtLink to="/" class="text-xl font-semibold text-gray-800">
-      FriendGroup
-    </NuxtLink>
+    <div class="flex items-center space-x-4">
+      <!-- Logo and Title -->
+      <NuxtLink to="/" class="text-xl font-semibold text-gray-800">
+        FriendGroup
+      </NuxtLink>
+
+      <!-- Friend Group Dropdown -->
+      <NDropdown :options="groupOptions" @select="handleGroupSelect">
+        <div class="flex items-center cursor-pointer space-x-2">
+          <span class="text-gray-800 font-medium">{{ selectedGroup }}</span>
+          <NIcon size="20" :component="ChevronDownOutline" />
+        </div>
+      </NDropdown>
+    </div>
 
     <nav class="hidden space-x-6 md:flex ml-auto">
       <a href="#features" class="hover:text-blue-600 content-center">Features</a>
@@ -24,7 +66,7 @@ function toggleMobileMenu() {
       </NButton>
     </nav>
 
-    <NButton v-if="status === 'unauthenticated'" type="primary" ghost class="ml-auto md:ml-4" @click="navigateTo('/auth/signin')">
+    <NButton v-if="status === 'unauthenticated'" type="primary" ghost class="ml-auto md:ml-4" @click="navigateToSignin">
       Login
     </NButton>
     <NAvatar
