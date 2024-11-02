@@ -60,7 +60,7 @@ watchEffect(() => {
     <nav class="hidden space-x-6 md:flex ml-auto">
       <a href="#features" class="hover:text-blue-600 content-center">Features</a>
       <a href="#pricing" class="hover:text-blue-600 content-center">Pricing</a>
-      <a href="#about" class="hover:text-blue-600 content-center">About</a>
+      <NuxtLink href="/friendgroups" class="hover:text-blue-600 content-center">Groups</NuxtLink>
       <NButton type="primary">
         Try for Free
       </NButton>
