@@ -1,90 +1,156 @@
 import { z } from 'zod'
-import { PrismaClient } from '@prisma/client'
 import { publicProcedure, router } from '../trpc'
-
-const prisma = new PrismaClient()
+import { FriendGroup } from '@prisma/client'
 
 export const friendgroupRouter = router({
-  create: publicProcedure
-    .input(
-      z.object({
-        name: z.string().min(1, 'Name is required'),
-        description: z.string().optional(),
-        image: z.string().optional(),
-        userId: z.string().min(1, 'User ID is required')
-      })
-    )
-    .mutation(async ({ input }) => {
-      const { name, description, image, userId } = input
-
-      const newGroup = await prisma.friendGroup.create({
-        data: {
-          name,
-          description: description ?? '',
-          image: image ?? '',
-          members: {
-            create: {
-              userId,
-              role: 'FOUNDER'
+    create: publicProcedure
+        .input(
+            z.object({
+                name: z.string().min(1, 'Name is required').max(64, 'Name is too long'),
+                description: z.string().max(512, 'Description is too long').optional().nullable().or(z.literal('')),
+                image: z.string().url().optional().nullable().or(z.literal('')),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
+            if (!ctx.session?.user) {
+                return { error: 'Not authenticated' }
             }
-          }
-        }
-      })
 
-      return newGroup
-    }),
+            const { name, description, image } = input
+            const userId = (ctx.session.user as any).id as string
 
-  acceptInvitation: publicProcedure
-    .input(
-      z.object({
-        groupId: z.string(),
-        userId: z.string()
-      })
-    )
-    .mutation(async ({ input }) => {
-      const { groupId, userId } = input
+            const newGroup = await ctx.prisma.friendGroup.create({
+                data: {
+                    name,
+                    description: description ?? '',
+                    image: image ?? '',
+                    members: {
+                        create: {
+                            userId,
+                            role: 'FOUNDER', 
+                        }
+                    }
+                }
+            })
 
-      const invitation = await prisma.friendGroupMember.findFirst({
-        where: { friendGroupId: groupId, userId, role: 'USER' }
-      })
+            return { data: newGroup }
+        }),
 
-      if (!invitation) {
-        throw new Error('Invitation not found or already accepted')
-      }
+    update: publicProcedure
+        .input(
+            z.object({
+                group: z.object({
+                    name: z.string().min(1, 'Name is required').max(64, 'Name is too long'),
+                    description: z.string().max(512, 'Description is too long').optional(),
+                    image: z.string().url().optional(),
+                    id: z.string(),
+                })
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
+            if (!ctx.session?.user) {
+                return { error: 'Not authenticated' }
+            }
 
-      return prisma.friendGroupMember.update({
-        where: { id: invitation.id },
-        data: { role: 'USER' }
-      })
-    }),
+            const { group } = input
+            const userId = (ctx.session.user as any).id as string
 
-  exitGroup: publicProcedure
-    .input(
-      z.object({
-        groupId: z.string(),
-        userId: z.string()
-      })
-    )
-    .mutation(async ({ input }) => {
-      const { groupId, userId } = input
+            return { 
+                data: await ctx.prisma.friendGroup.update({
+                    where: { 
+                        id: group.id,
+                        members: { some: { userId, OR: [ { role: 'FOUNDER' }, { role: 'USER' } ] } }    
+                    },
+                    data: { 
+                        name: group.name, 
+                        description: group.description, 
+                        image: group.image, 
+                    } 
+                })
+            }
+        }),
 
-      return prisma.friendGroupMember.deleteMany({
-        where: { friendGroupId: groupId, userId }
-      })
-    }),
+    acceptInvitation: publicProcedure
+        .input(
+            z.object({
+                groupId: z.string(),
+                userId: z.string()
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
+            const { groupId, userId } = input
 
-  removeMember: publicProcedure
-    .input(
-      z.object({
-        groupId: z.string(),
-        memberId: z.string() // ID of the member to be removed
-      })
-    )
-    .mutation(async ({ input }) => {
-      const { groupId, memberId } = input
+            const invitation = await ctx.prisma.friendGroupMember.findFirst({
+                where: { friendGroupId: groupId, userId, role: 'USER' }
+            })
 
-      return prisma.friendGroupMember.deleteMany({
-        where: { friendGroupId: groupId, userId: memberId }
-      })
-    })
+            if (!invitation) {
+                throw new Error('Invitation not found or already accepted')
+            }
+
+            return ctx.prisma.friendGroupMember.update({
+                where: { id: invitation.id },
+                data: { role: 'USER' }
+            })
+        }),
+
+    exitGroup: publicProcedure
+        .input(
+            z.object({
+                groupId: z.string(),
+                userId: z.string()
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
+            const { groupId, userId } = input
+
+            return ctx.prisma.friendGroupMember.deleteMany({
+                where: { friendGroupId: groupId, userId }
+            })
+        }),
+
+    removeMember: publicProcedure
+        .input(
+            z.object({
+                groupId: z.string(),
+                memberId: z.string() // ID of the member to be removed
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
+            const { groupId, memberId } = input
+
+            return ctx.prisma.friendGroupMember.deleteMany({
+                where: { friendGroupId: groupId, userId: memberId }
+            })
+        }),
+
+    getFriendgroups: publicProcedure
+        .query(async ({ ctx}) => {
+            if (!ctx.session?.user) {
+                return { error: 'Not authenticated' }
+            }
+            const groups = await ctx.prisma.friendGroup.findMany({ where: { members: { some: { userId: (ctx.session.user as any).id } } } })
+            return {data: groups}
+        }),
+
+    updateDefaultGroup: publicProcedure
+        .input(
+            z.object({
+                groupId: z.string()
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
+            const { groupId } = input
+
+            if (!ctx.session?.user) {
+                return { error: 'Not authenticated' }
+            }
+
+            return { 
+                data: await ctx.prisma.user.update({
+                    where: { id: (ctx.session.user as any).id },
+                    data: { defaultFriendGroupId: groupId }
+                })
+            }
+        }),
 })

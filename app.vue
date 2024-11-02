@@ -1,7 +1,11 @@
 <template>
   <NConfigProvider>
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
+    <NMessageProvider>
+        <NNotificationProvider>
+            <NuxtLayout>
+                <NuxtPage />
+            </NuxtLayout>
+        </NNotificationProvider>
+    </NMessageProvider>
   </NConfigProvider>
 </template>

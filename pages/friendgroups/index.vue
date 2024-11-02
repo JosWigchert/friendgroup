@@ -1,33 +1,48 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { NButton, NIcon, NInput, NModal } from 'naive-ui'
+import { useMessage } from 'naive-ui'
 import { AddOutline } from '@vicons/ionicons5'
 
 const router = useRouter()
 
-const friendGroups = ref([
-  { id: 1, name: 'Weekend Warriors' },
-  { id: 2, name: 'Book Club' },
-  { id: 3, name: 'Travel Buddies' },
-])
+const { hasGroup, groups, selectedGroup, update, selectGroup, createGroup } = useFriendgroup()
 
 const showModal = ref(false)
 const newGroupName = ref('')
+const newGroupDescription = ref('')
+const newGroupImage = ref('')
 
-function openModal() {
-  showModal.value = true
+const addingGroup = ref(false)
+
+async function createFriendGroup() {
+    addingGroup.value = true
+    try {
+        const result = await createGroup({
+            name: newGroupName.value,
+            description: newGroupDescription.value,
+            image: newGroupImage.value,
+        })
+        if (!result.error) {
+            showModal.value = false
+        }
+        else {
+            console.log(result.error)
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        addingGroup.value = false
+    }
 }
 
-function addFriendGroup() {
-  if (newGroupName.value) {
-    friendGroups.value.push({
-      id: friendGroups.value.length + 1,
-      name: newGroupName.value,
-    })
+function openModal() {
+    showModal.value = true
+}
+
+function clearModal() {
     newGroupName.value = ''
-    showModal.value = false
-  }
+    newGroupDescription.value = ''
+    newGroupImage.value = ''
 }
 
 function goToGroup(id) {
@@ -47,32 +62,34 @@ function goToGroup(id) {
       </NButton>
     </div>
 
-    <!-- List of Friend Groups -->
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <div
-        v-for="group in friendGroups"
-        :key="group.id"
-        class="bg-white p-6 rounded-lg shadow-md text-center cursor-pointer hover:bg-gray-50"
-        @click="goToGroup(group.id)"
-      >
-        <h2 class="text-lg font-medium text-gray-700">
-          {{ group.name }}
-        </h2>
-      </div>
+        <div v-if="hasGroup" class="flex flex-col md:flex-row w-full">
+            <div v-for="group in groups" class="w-full md:w-4/12 mr-4 mb-4">
+                <NCard hoverable :title="group.name" :key="group.id" @click="goToGroup(group.id)">
+                    <img v-if="group.image" :src="group.image">
+                    {{ group.description }}
+                </NCard>
+            </div>
+        </div>
+        <div v-else>
+            <NCard hoverable title="No Friend Groups">
+                <div class="flex flex-row">
+                    <NImage width="64" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fstatic.vecteezy.com%2Fsystem%2Fresources%2Fpreviews%2F004%2F141%2F669%2Foriginal%2Fno-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg&f=1&nofb=1&ipt=3e712b018bbbfcb204eedd690f5fc63781fd7a23fa849a10e3a106d26b463399&ipo=images"/>
+                    <div class="">...</div>
+                </div>
+            </NCard>
+        </div>
     </div>
 
-    <!-- Create Friend Group Modal -->
-    <NModal v-model:show="showModal" title="Create New Friend Group" size="small">
-      <div class="flex flex-col space-y-4">
-        <NInput
-          v-model:value="newGroupName"
-          placeholder="Enter friend group name"
-          autofocus
-        />
-        <NButton type="primary" block @click="addFriendGroup">
-          Add Group
-        </NButton>
-      </div>
+    <NModal v-model:show="showModal" v-on:after-hide="clearModal" title="Create New Friend Group" size="small">
+        <NCard title="Create New Friend Group" size="small" class="w-96">
+            <NInput :disabled="addingGroup" class="my-2" v-model:value="newGroupName" placeholder="Enter friend group name" autofocus />
+            <NInput :disabled="addingGroup" class="my-2" v-model:value="newGroupDescription" placeholder="Enter friend group description" />
+            <NInput :disabled="addingGroup" class="my-2" v-model:value="newGroupImage" placeholder="Enter friend group image" />
+            <NButton :disabled="addingGroup"  class="mt-2" type="primary" block @click="createFriendGroup">
+              Create Group
+            </NButton>
+        </NCard>
     </NModal>
   </div>
 </template>

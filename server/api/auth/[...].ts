@@ -29,5 +29,17 @@ export default NuxtAuthHandler({
   ],
   pages: {
     signIn: '/auth/signin'
-  }
+  },
+  callbacks: {
+    async session({ session, user }) {
+        
+      return {
+        ...session,
+        user: {
+            ...session.user,
+            id: user.id,
+        },
+      }
+    },
+  },
 })
