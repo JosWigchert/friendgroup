@@ -3,9 +3,9 @@ import { ref } from 'vue'
 import { useMessage } from 'naive-ui'
 import { AddOutline } from '@vicons/ionicons5'
 
-const router = useRouter()
+const { isLoading, hasGroup, groups, createGroup } = useFriendgroup()
 
-const { hasGroup, groups, selectedGroup, update, selectGroup, createGroup } = useFriendgroup()
+const router = useRouter()
 
 const showModal = ref(false)
 const newGroupName = ref('')
@@ -64,18 +64,15 @@ function goToGroup(id) {
       </NButton>
     </div>
 
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <div v-if="hasGroup" class="flex flex-col md:flex-row w-full">
-        <div v-for="group in groups" class="w-full md:w-4/12 mr-4 mb-4">
-          <NCard :key="group.id" hoverable :title="group.name" @click="goToGroup(group.id)">
-            <img v-if="group.image" :src="group.image">
-            {{ group.description }}
-          </NCard>
-        </div>
-      </div>
-      <div v-else>
-        <FriendGroupCard :is-loading="isLoading" title="No Friend Groups" description="You don't have any friend groups yet. Create one to get started! no wthere is more textand even mor eeadjkflasjflasjk faslfsalfjsaldfjks alfjl sfj salkfd " />
-      </div>
+    <div class="flex flex-row flex-wrap">
+      <template v-if="hasGroup">
+        <template v-for="group in groups" :key="group.id">
+          <FriendGroupCard class="mb-4 mr-6" :is-loading="isLoading" :title="group.name" :description="group.description" :image="group.image" @click="goToGroup(group.id)" />
+        </template>
+      </template>
+      <template v-else>
+        <FriendGroupCard class="mb-4 mr-6" :is-loading="isLoading" title="No Friend Groups" description="You don't have any friend groups yet. Create one to get started!" />
+      </template>
     </div>
 
     <NModal v-model:show="showModal" title="Create New Friend Group" size="small" @after-hide="clearModal">

@@ -48,19 +48,15 @@ watchEffect(() => {
         FriendGroup
       </NuxtLink>
 
-      <!-- Friend Group Dropdown -->
-      <NDropdown :options="groupOptions" @select="handleGroupSelect">
-        <div class="flex items-center cursor-pointer space-x-2">
-          <span class="text-gray-800 font-medium">{{ selectedGroup }}</span>
-          <NIcon size="20" :component="ChevronDownOutline" />
-        </div>
-      </NDropdown>
+      <FriendGroupSelector />
     </div>
 
     <nav class="hidden space-x-6 md:flex ml-auto">
       <a href="#features" class="hover:text-blue-600 content-center">Features</a>
       <a href="#pricing" class="hover:text-blue-600 content-center">Pricing</a>
-      <NuxtLink href="/friendgroups" class="hover:text-blue-600 content-center">Groups</NuxtLink>
+      <NuxtLink href="/friendgroups" class="hover:text-blue-600 content-center">
+        Groups
+      </NuxtLink>
       <NButton type="primary">
         Try for Free
       </NButton>
@@ -80,7 +76,7 @@ watchEffect(() => {
 
     <div
       v-show="isMobileMenuOpen"
-      class="absolute top-16 left-0 right-0 bg-white shadow-md flex flex-col space-y-4 p-4 md:hidden overflow-hidden transition-all duration-300 ease-in-out"
+      class="absolute top-16 left-0 right-0 bg-white shadow-md flex flex-col space-y-4 p-4 md:hidden overflow-hidden transition-all duration-300 ease-in-out z-50"
       :class="isMobileMenuOpen ? 'max-h-96' : 'max-h-0'"
     >
       <a href="#features" class="hover:text-blue-600" @click="toggleMobileMenu">Features</a>
