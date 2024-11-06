@@ -22,7 +22,9 @@ defineProps({
 </script>
 
 <template>
-  <div class="flex items-stretch bg-white rounded-lg shadow-lg max-w-md hover:shadow-2xl hover:scale-105 transition-all duration-300 w-96">
+  <div
+    class="flex items-stretch bg-white rounded-lg shadow-lg max-w-md hover:shadow-2xl hover:scale-105 transition-all duration-300 w-screen sm:w-96"
+  >
     <template v-if="isLoading">
       <div class="w-24 h-24 flex-shrink-0 overflow-hidden">
         <NSkeleton :text="false" class="w-full h-full rounded-lg" />
@@ -41,7 +43,10 @@ defineProps({
     </template>
     <template v-else>
       <div class="w-24 h-24 flex-shrink-0 overflow-hidden">
-        <img :src="image || '/default-image.jpg'" alt="Friend Group" class="object-cover w-full h-full rounded-lg">
+        <img
+          :src="image || '/default-image.jpg'" alt="Friend Group"
+          class="object-cover w-full h-full rounded-lg"
+        >
       </div>
 
       <div class="flex flex-col justify-between flex-1 px-4 py-2">

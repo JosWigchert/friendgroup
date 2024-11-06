@@ -3,6 +3,10 @@ import { ref } from 'vue'
 import { useMessage } from 'naive-ui'
 import { AddOutline } from '@vicons/ionicons5'
 
+definePageMeta({
+  middleware: ['auth'],
+})
+
 const { isLoading, hasGroup, groups, createGroup } = useFriendgroup()
 
 const router = useRouter()
@@ -26,11 +30,11 @@ async function createFriendGroup() {
       showModal.value = false
     }
     else {
-      console.log(result.error)
+      console.warn(result.error)
     }
   }
   catch (error) {
-    console.log(error)
+    console.error(error)
   }
   finally {
     addingGroup.value = false

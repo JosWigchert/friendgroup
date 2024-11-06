@@ -10,16 +10,18 @@ const groupOptions = computed(() => {
   }))
 })
 
-function handleGroupSelect(key) {
+function handleGroupSelect(key: string) {
   selectGroup(key)
 }
+
+// TODO: make popselect
 </script>
 
 <template>
-  <NDropdown :options="groupOptions" @select="handleGroupSelect">
+  <NDropdown v-if="hasGroup" :options="groupOptions" @select="handleGroupSelect">
     <div class="flex items-center cursor-pointer space-x-2">
       <NSkeleton v-if="isLoading" text :width="96" />
-      <span v-else class="text-gray-800 font-medium">{{ selectedGroup?.name }}</span>
+      <span v-else class="text-gray-800 font-medium">{{ selectedGroup ? selectedGroup?.name : "Select a group" }}</span>
       <NIcon size="20" :component="ChevronDownOutline" />
     </div>
   </NDropdown>
